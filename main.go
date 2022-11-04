@@ -24,13 +24,14 @@ OPTIONS:
 func main() {
 	ocaKey := flag.String("oca-key", "", "Cloudflare `Origin CA Key`, needed to authorise any CA Certificate operations")
 	zone := flag.String("zone", "", "Cloudflare `Zone ID`, Only used when listing certificates")
+	certToFile := flag.Bool("cert-to-file", false, "Output each certificate into a file in the current directory, Only used when listing certificates")
 	flag.Parse()
 
 	switch cmd := flag.Arg(0); cmd {
 	case "create":
 		create()
 	case "list":
-		list(*ocaKey, *zone)
+		list(*ocaKey, *zone, *certToFile)
 	default:
 		fmt.Printf("Unknown command: %s\nUsage:\n", cmd)
 		fmt.Println(usage)
@@ -42,7 +43,7 @@ func main() {
 func create() {
 }
 
-func list(ocaKey string, zone string) {
+func list(ocaKey string, zone string, certToFile bool) {
 
 	if ocaKey == "" || zone == "" {
 		fmt.Printf("Both oca-key and zone are needed for this operation\n")
@@ -85,6 +86,26 @@ func list(ocaKey string, zone string) {
 		fmt.Printf("Error unmarhsalling json: \n%s\n", e)
 	}
 
-	fmt.Printf("%+v\n", certList)
+	if certToFile {
+		CertsToFile(certList)
+	} else {
+		fmt.Printf("%+v\n", certList)
+	}
 
+}
+
+func CertsToFile(cl CertificateList) {
+	for _, cert := range cl.Result {
+		file, err := os.Create(cert.Id + ".pem")
+		if err != nil {
+			fmt.Printf("Error Writing Certificates to File: \n %s", err)
+		}
+
+		defer file.Close()
+
+		_, error := file.WriteString(cert.Certificate)
+		if error != nil {
+			fmt.Printf("Error Writing Certificates to File: \n %s", error)
+		}
+	}
 }
