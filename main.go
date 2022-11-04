@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -40,5 +43,48 @@ func create() {
 }
 
 func list(ocaKey string, zone string) {
+
+	if ocaKey == "" || zone == "" {
+		fmt.Printf("Both oca-key and zone are needed for this operation\n")
+		os.Exit(1)
+	}
+
+	req, err := http.NewRequest(http.MethodGet, baseApi+"certificates", nil)
+	if err != nil {
+		fmt.Printf("Unable to create request: %s\n", err)
+		os.Exit(1)
+	}
+
+	req.Header.Add("X-Auth-User-Service-Key", ocaKey)
+	query := req.URL.Query()
+	query.Add("zone_id", zone)
+	req.URL.RawQuery = query.Encode()
+
+	response, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("Error in http request: %s\n", err)
+		os.Exit(1)
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		fmt.Printf("HTTP Error: %d\n", response.StatusCode)
+		responseBytes, _ := io.ReadAll(response.Body)
+		fmt.Println(string(responseBytes))
+		os.Exit(1)
+	}
+
+	responseData, _ := io.ReadAll(response.Body)
+
+	var certList CertificateList
+
+	e := json.Unmarshal(responseData, &certList)
+
+	if e != nil {
+		fmt.Printf("Error unmarhsalling json: \n%s\n", e)
+	}
+
+	fmt.Printf("%+v\n", certList)
 
 }
