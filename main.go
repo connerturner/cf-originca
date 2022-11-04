@@ -26,6 +26,8 @@ func main() {
 	switch cmd := flag.Arg(0); cmd {
 	case "create":
 		create()
+	case "list":
+		list(*ocaKey, *zone)
 	default:
 		fmt.Printf("Unknown command: %s\nUsage:\n", cmd)
 		fmt.Println(usage)
@@ -35,9 +37,8 @@ func main() {
 }
 
 func create() {
-
 }
 
-func list() {
+func list(ocaKey string, zone string) {
 
 }
