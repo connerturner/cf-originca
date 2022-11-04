@@ -30,6 +30,10 @@ func main() {
 	switch cmd := flag.Arg(0); cmd {
 	case "create":
 		create()
+	case "revoke":
+		revoke()
+	case "get":
+		get()
 	case "list":
 		list(*ocaKey, *zone, *certToFile)
 	default:
@@ -41,6 +45,15 @@ func main() {
 }
 
 func create() {
+	panic("unimplemented")
+}
+
+func get() {
+	panic("unimplemented")
+}
+
+func revoke() {
+	panic("unimplemented")
 }
 
 func list(ocaKey string, zone string, certToFile bool) {
