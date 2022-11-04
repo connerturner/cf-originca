@@ -15,7 +15,7 @@ var client = &http.Client{
 }
 
 var usage = `
-originca [COMMAND] [OPTIONS]
+originca [OPTIONS] [COMMAND]
 COMMAND := list,create,get,revoke
 
 OPTIONS:
